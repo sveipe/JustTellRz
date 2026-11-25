@@ -19,7 +19,7 @@ export function HomeScreen({ stats, onStart }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.hero}>
-        <Text style={styles.title}>JustTellRz</Text>
+        <Text style={styles.title}>Numberwright</Text>
         <Text style={styles.subtitle}>Combine the tiles. Hit the target.</Text>
       </View>
 

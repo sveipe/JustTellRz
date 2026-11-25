@@ -9,6 +9,7 @@ export interface Stats {
   bestTime: Partial<Record<Difficulty, number>>;
 }
 
+// Key predates the rename to Numberwright; kept so saved stats carry over.
 const KEY = 'justtellrz.stats.v1';
 
 export const EMPTY_STATS: Stats = { solved: 0, totalScore: 0, streak: 0, bestStreak: 0, bestTime: {} };
