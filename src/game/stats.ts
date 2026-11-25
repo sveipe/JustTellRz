@@ -9,7 +9,7 @@ export interface Stats {
   bestTime: Partial<Record<Difficulty, number>>;
 }
 
-const KEY = 'justtellrz.stats.v1';
+const KEY = 'numberwright.stats.v1';
 
 export const EMPTY_STATS: Stats = { solved: 0, totalScore: 0, streak: 0, bestStreak: 0, bestTime: {} };
 

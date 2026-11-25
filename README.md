@@ -1,4 +1,4 @@
-# JustTellRz
+# Numberwright
 
 A mobile numbers puzzle game built with React Native and Expo.
 
