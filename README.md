@@ -13,6 +13,19 @@ You get a set of number tiles and a **target**. Tap a number, an operator (`+ âˆ
 
 Every puzzle can be solved: the generator builds the target from the dealt tiles.
 
+### Daily puzzle
+
+Each day has one daily puzzle (Medium difficulty). Everyone gets the same puzzle on the same calendar date, and a new one arrives at local midnight.
+
+- The timer starts the first time you open the day's puzzle and keeps running if you leave and come back.
+- There's no Skip. Hints are allowed but cut the score, and the result notes that you used one.
+- Solving it on consecutive days builds a day streak. Missing a day resets it.
+- Daily solves add to your Solved and Score totals, but not to the practice streak or best times.
+
+The daily puzzle comes from `generatePuzzle` with a date-seeded random number generator. Any change to the generator changes the daily puzzles too.
+
+### Practice levels
+
 | Level  | Tiles | Big numbers (25/50/75/100) | Target range |
 | ------ | ----- | -------------------------- | ------------ |
 | Easy   | 5     | 0                          | 10â€“60        |

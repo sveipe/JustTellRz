@@ -8,20 +8,32 @@ import {
   loadFeedbackSettings,
   saveFeedbackSettings,
 } from './src/feedback';
-import type { Difficulty } from './src/game/engine';
+import { DAILY_DIFFICULTY, Difficulty, localDateKey, previousDateKey } from './src/game/engine';
 import { EMPTY_STATS, loadStats, saveStats, Stats } from './src/game/stats';
 import { GameScreen } from './src/screens/GameScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { colors } from './src/theme';
 
+interface Game {
+  difficulty: Difficulty;
+  daily?: { dateKey: string; startedAt: number };
+}
+
 export default function App() {
   const [stats, setStats] = useState<Stats>(EMPTY_STATS);
-  const [difficulty, setDifficulty] = useState<Difficulty | null>(null);
+  const [game, setGame] = useState<Game | null>(null);
+  const [today, setToday] = useState(() => localDateKey(new Date()));
   const [feedbackSettings, setFeedbackSettings] = useState<FeedbackSettings>(DEFAULT_FEEDBACK);
 
   useEffect(() => {
     loadStats().then(setStats);
     loadFeedbackSettings().then(setFeedbackSettings);
+  }, []);
+
+  // Keep "today" current so a new daily puzzle appears after midnight.
+  useEffect(() => {
+    const t = setInterval(() => setToday(localDateKey(new Date())), 30_000);
+    return () => clearInterval(t);
   }, []);
 
   const changeFeedback = useCallback((next: FeedbackSettings) => {
@@ -37,13 +49,51 @@ export default function App() {
     });
   }, []);
 
+  const startPractice = useCallback((difficulty: Difficulty) => setGame({ difficulty }), []);
+
+  const startDaily = useCallback(() => {
+    const dateKey = localDateKey(new Date());
+    setToday(dateKey);
+    // The timer counts from the first time today's puzzle was opened, so leaving and
+    // coming back doesn't reset it.
+    const resumed = stats.daily.startedDate === dateKey && stats.daily.startedAt != null;
+    const startedAt = resumed ? stats.daily.startedAt! : Date.now();
+    if (!resumed) {
+      updateStats((s) => ({ ...s, daily: { ...s.daily, startedDate: dateKey, startedAt } }));
+    }
+    setGame({ difficulty: DAILY_DIFFICULTY, daily: { dateKey, startedAt } });
+  }, [stats.daily, updateStats]);
+
   const onSolved = useCallback(
-    ({ seconds, score }: { seconds: number; score: number }) => {
-      if (!difficulty) return;
+    ({ seconds, score, usedHint }: { seconds: number; score: number; usedHint: boolean }) => {
+      if (!game) return;
+      const { difficulty, daily } = game;
+      if (daily) {
+        updateStats((s) => {
+          if (s.daily.lastSolvedDate === daily.dateKey) return s;
+          const streak = s.daily.lastSolvedDate === previousDateKey(daily.dateKey) ? s.daily.streak + 1 : 1;
+          return {
+            ...s,
+            solved: s.solved + 1,
+            totalScore: s.totalScore + score,
+            daily: {
+              ...s.daily,
+              lastSolvedDate: daily.dateKey,
+              lastSeconds: seconds,
+              lastScore: score,
+              lastUsedHint: usedHint,
+              streak,
+              bestStreak: Math.max(s.daily.bestStreak, streak),
+            },
+          };
+        });
+        return;
+      }
       updateStats((s) => {
         const streak = s.streak + 1;
         const prevBest = s.bestTime[difficulty];
         return {
+          ...s,
           solved: s.solved + 1,
           totalScore: s.totalScore + score,
           streak,
@@ -52,29 +102,37 @@ export default function App() {
         };
       });
     },
-    [difficulty, updateStats],
+    [game, updateStats],
   );
 
   const onSkip = useCallback(() => updateStats((s) => ({ ...s, streak: 0 })), [updateStats]);
+
+  const exitGame = useCallback(() => {
+    setToday(localDateKey(new Date()));
+    setGame(null);
+  }, []);
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.root}>
         <StatusBar style="light" />
-        {difficulty ? (
+        {game ? (
           <GameScreen
-            key={difficulty}
-            difficulty={difficulty}
+            key={game.daily ? `daily-${game.daily.dateKey}` : game.difficulty}
+            difficulty={game.difficulty}
+            daily={game.daily}
             onSolved={onSolved}
             onSkip={onSkip}
-            onExit={() => setDifficulty(null)}
+            onExit={exitGame}
           />
         ) : (
           <HomeScreen
             stats={stats}
+            today={today}
             feedbackSettings={feedbackSettings}
             onChangeFeedback={changeFeedback}
-            onStart={setDifficulty}
+            onStart={startPractice}
+            onStartDaily={startDaily}
           />
         )}
       </SafeAreaView>

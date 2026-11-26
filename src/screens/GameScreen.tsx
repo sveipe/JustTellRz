@@ -4,6 +4,7 @@ import { Button } from '../components/Button';
 import { NumberTile } from '../components/NumberTile';
 import {
   apply,
+  dailyPuzzle,
   Difficulty,
   formatStep,
   generatePuzzle,
@@ -20,6 +21,8 @@ import { colors } from '../theme';
 
 interface Props {
   difficulty: Difficulty;
+  /** Set for the daily puzzle: its date and when the player first opened it today. */
+  daily?: { dateKey: string; startedAt: number };
   onSolved: (result: { seconds: number; score: number; usedHint: boolean }) => void;
   onSkip: () => void;
   onExit: () => void;
@@ -34,8 +37,16 @@ function secondsSince(start: number): number {
   return Math.floor((Date.now() - start) / 1000);
 }
 
-export function GameScreen({ difficulty, onSolved, onSkip, onExit }: Props) {
-  const [puzzle, setPuzzle] = useState<Puzzle>(() => generatePuzzle(difficulty));
+function formatDateKey(dateKey: string): string {
+  const [, m, d] = dateKey.split('-').map(Number);
+  const month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][m - 1];
+  return `${month} ${d}`;
+}
+
+export function GameScreen({ difficulty, daily, onSolved, onSkip, onExit }: Props) {
+  const [puzzle, setPuzzle] = useState<Puzzle>(() =>
+    daily ? dailyPuzzle(daily.dateKey) : generatePuzzle(difficulty),
+  );
   const [tiles, setTiles] = useState<Tile[]>(() => puzzle.numbers.map(makeTile));
   const [steps, setSteps] = useState<Step[]>([]);
   const [history, setHistory] = useState<Snapshot[]>([]);
@@ -44,7 +55,7 @@ export function GameScreen({ difficulty, onSolved, onSkip, onExit }: Props) {
   const [message, setMessage] = useState<string | null>(null);
   const [showHint, setShowHint] = useState(false);
   const [hintUsed, setHintUsed] = useState(false);
-  const [startedAt, setStartedAt] = useState(() => Date.now());
+  const [startedAt, setStartedAt] = useState(() => daily?.startedAt ?? Date.now());
   const [now, setNow] = useState(() => Date.now());
   const [won, setWon] = useState<{ seconds: number; score: number } | null>(null);
 
@@ -160,7 +171,7 @@ export function GameScreen({ difficulty, onSolved, onSkip, onExit }: Props) {
         <Pressable onPress={onExit} hitSlop={12} accessibilityRole="button">
           <Text style={styles.back}>‹ Menu</Text>
         </Pressable>
-        <Text style={styles.level}>{difficulty.toUpperCase()}</Text>
+        <Text style={styles.level}>{daily ? `DAILY · ${formatDateKey(daily.dateKey)}` : difficulty.toUpperCase()}</Text>
         <Text style={styles.timer}>{seconds}s</Text>
       </View>
 
@@ -216,7 +227,11 @@ export function GameScreen({ difficulty, onSolved, onSkip, onExit }: Props) {
       </View>
 
       {won ? (
-        <Button label="Next puzzle" variant="primary" onPress={newPuzzle} />
+        daily ? (
+          <Button label="Back to menu" variant="primary" onPress={onExit} />
+        ) : (
+          <Button label="Next puzzle" variant="primary" onPress={newPuzzle} />
+        )
       ) : (
         <View style={styles.actions}>
           <Button label="Undo" onPress={undo} disabled={history.length === 0} style={styles.action} />
@@ -225,7 +240,7 @@ export function GameScreen({ difficulty, onSolved, onSkip, onExit }: Props) {
               setHintUsed(true);
               setShowHint((v) => !v);
             }} style={styles.action} />
-          <Button label="Skip" onPress={skip} style={styles.action} />
+          {!daily && <Button label="Skip" onPress={skip} style={styles.action} />}
         </View>
       )}
     </View>
