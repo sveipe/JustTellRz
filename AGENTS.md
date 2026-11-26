@@ -28,6 +28,8 @@ Run lint and typecheck before declaring any task done.
 - `App.tsx` — root; switches between the home and game screens and owns persisted stats.
 - `src/game/engine.ts` — pure game logic (puzzle generation, operations, scoring). Keep it free of React/RN imports.
 - `src/game/stats.ts` — AsyncStorage persistence.
+- `src/feedback.ts` — sound effects (expo-audio) and haptics (expo-haptics); call `feedback(event)` from UI code.
+- `assets/sounds/` — generated WAVs; edit `scripts/make-sounds.py` and re-run it rather than editing the files.
 - `src/screens/`, `src/components/` — UI. Colors live in `src/theme.ts`.
 - The app currently uses simple state-based screen switching. If real navigation is needed, adopt **Expo Router** (routes in `src/app/`).
 

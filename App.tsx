@@ -2,6 +2,12 @@ import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import {
+  DEFAULT_FEEDBACK,
+  FeedbackSettings,
+  loadFeedbackSettings,
+  saveFeedbackSettings,
+} from './src/feedback';
 import type { Difficulty } from './src/game/engine';
 import { EMPTY_STATS, loadStats, saveStats, Stats } from './src/game/stats';
 import { GameScreen } from './src/screens/GameScreen';
@@ -11,9 +17,16 @@ import { colors } from './src/theme';
 export default function App() {
   const [stats, setStats] = useState<Stats>(EMPTY_STATS);
   const [difficulty, setDifficulty] = useState<Difficulty | null>(null);
+  const [feedbackSettings, setFeedbackSettings] = useState<FeedbackSettings>(DEFAULT_FEEDBACK);
 
   useEffect(() => {
     loadStats().then(setStats);
+    loadFeedbackSettings().then(setFeedbackSettings);
+  }, []);
+
+  const changeFeedback = useCallback((next: FeedbackSettings) => {
+    setFeedbackSettings(next);
+    saveFeedbackSettings(next);
   }, []);
 
   const updateStats = useCallback((fn: (s: Stats) => Stats) => {
@@ -57,7 +70,12 @@ export default function App() {
             onExit={() => setDifficulty(null)}
           />
         ) : (
-          <HomeScreen stats={stats} onStart={setDifficulty} />
+          <HomeScreen
+            stats={stats}
+            feedbackSettings={feedbackSettings}
+            onChangeFeedback={changeFeedback}
+            onStart={setDifficulty}
+          />
         )}
       </SafeAreaView>
     </SafeAreaProvider>

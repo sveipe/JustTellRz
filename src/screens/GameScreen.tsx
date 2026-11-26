@@ -15,6 +15,7 @@ import {
   Step,
   Tile,
 } from '../game/engine';
+import { feedback } from '../feedback';
 import { colors } from '../theme';
 
 interface Props {
@@ -27,6 +28,10 @@ interface Props {
 interface Snapshot {
   tiles: Tile[];
   steps: Step[];
+}
+
+function secondsSince(start: number): number {
+  return Math.floor((Date.now() - start) / 1000);
 }
 
 export function GameScreen({ difficulty, onSolved, onSkip, onExit }: Props) {
@@ -76,17 +81,20 @@ export function GameScreen({ difficulty, onSolved, onSkip, onExit }: Props) {
     if (won) return;
     setMessage(null);
     if (!selected || selected === tile.id) {
+      feedback('tap');
       setSelected(selected === tile.id ? null : tile.id);
       setOp(null);
       return;
     }
     if (!op) {
+      feedback('tap');
       setSelected(tile.id);
       return;
     }
     const first = tiles.find((t) => t.id === selected)!;
     const result = apply(first.value, op, tile.value);
     if (result === null) {
+      feedback('error');
       setMessage(op === '−' ? 'Results must stay positive' : 'Division must be exact');
       return;
     }
@@ -99,8 +107,11 @@ export function GameScreen({ difficulty, onSolved, onSkip, onExit }: Props) {
     setOp(null);
     setSelected(null);
 
-    if (result === puzzle.target) {
-      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+    if (result !== puzzle.target) {
+      feedback('combine');
+    } else {
+      feedback('win');
+      const elapsed = secondsSince(startedAt);
       const score = scoreFor(difficulty, elapsed, hintUsed);
       setWon({ seconds: elapsed, score });
       setSelected(null);
@@ -110,12 +121,14 @@ export function GameScreen({ difficulty, onSolved, onSkip, onExit }: Props) {
 
   const onOpPress = (o: Op) => {
     if (won || !selected) return;
+    feedback('op');
     setOp(op === o ? null : o);
   };
 
   const undo = () => {
     const prev = history[history.length - 1];
     if (!prev || won) return;
+    feedback('undo');
     setTiles(prev.tiles);
     setSteps(prev.steps);
     setHistory((h) => h.slice(0, -1));
@@ -126,6 +139,7 @@ export function GameScreen({ difficulty, onSolved, onSkip, onExit }: Props) {
 
   const reset = () => {
     if (won || history.length === 0) return;
+    feedback('undo');
     const first = history[0];
     setTiles(first.tiles);
     setSteps([]);
