@@ -157,3 +157,44 @@ export function scoreFor(difficulty: Difficulty, seconds: number, usedHint: bool
   const total = base + timeBonus * 2;
   return usedHint ? Math.round(total / 4) : total;
 }
+
+/** Deterministic random number generator (mulberry32) seeded from a string. */
+export function seededRng(seed: string): () => number {
+  // FNV-1a hash of the seed string gives the 32-bit starting state.
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  let state = h >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** The player's local calendar date as YYYY-MM-DD. */
+export function localDateKey(date: Date): string {
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${m}-${d}`;
+}
+
+/** The calendar date before `dateKey`, as YYYY-MM-DD. */
+export function previousDateKey(dateKey: string): string {
+  const [y, m, d] = dateKey.split('-').map(Number);
+  return localDateKey(new Date(y, m - 1, d - 1));
+}
+
+export const DAILY_DIFFICULTY: Difficulty = 'medium';
+
+/**
+ * The daily puzzle for a date: everyone gets the same one on the same calendar day.
+ * It depends on the generator above, so changing generatePuzzle changes daily puzzles.
+ */
+export function dailyPuzzle(dateKey: string): Puzzle {
+  return generatePuzzle(DAILY_DIFFICULTY, seededRng(`numberwright-daily-${dateKey}`));
+}
