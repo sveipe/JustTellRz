@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text } from 'react-native';
 import { colors } from '../theme';
 
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function NumberTile({ value, selected, isTarget, onPress }: Props) {
-  const scale = useRef(new Animated.Value(0.6)).current;
+  const [scale] = useState(() => new Animated.Value(0.6));
 
   // Pop in whenever a tile is created (new tiles get new keys).
   useEffect(() => {

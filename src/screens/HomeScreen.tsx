@@ -1,11 +1,14 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
+import type { FeedbackSettings } from '../feedback';
 import type { Difficulty } from '../game/engine';
 import type { Stats } from '../game/stats';
 import { colors } from '../theme';
 
 interface Props {
   stats: Stats;
+  feedbackSettings: FeedbackSettings;
+  onChangeFeedback: (next: FeedbackSettings) => void;
   onStart: (d: Difficulty) => void;
 }
 
@@ -15,7 +18,7 @@ const LEVELS: { key: Difficulty; label: string; blurb: string }[] = [
   { key: 'hard', label: 'Hard', blurb: '6 tiles · targets to 999' },
 ];
 
-export function HomeScreen({ stats, onStart }: Props) {
+export function HomeScreen({ stats, feedbackSettings, onChangeFeedback, onStart }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.hero}>
@@ -42,11 +45,43 @@ export function HomeScreen({ stats, onStart }: Props) {
         <Stat label="Best" value={stats.bestStreak} />
       </View>
 
+      <View style={styles.toggles}>
+        <Toggle
+          label="Sound"
+          on={feedbackSettings.sound}
+          onPress={() => onChangeFeedback({ ...feedbackSettings, sound: !feedbackSettings.sound })}
+        />
+        {/* Phones only: browsers can't produce haptic feedback. */}
+        {Platform.OS !== 'web' && (
+          <Toggle
+            label="Haptics"
+            on={feedbackSettings.haptics}
+            onPress={() => onChangeFeedback({ ...feedbackSettings, haptics: !feedbackSettings.haptics })}
+          />
+        )}
+      </View>
+
       <Text style={styles.howTo}>
         Tap a number, an operator, then another number to combine them. Reach the target exactly to win. Every
         puzzle has at least one solution.
       </Text>
     </View>
+  );
+}
+
+function Toggle({ label, on, onPress }: { label: string; on: boolean; onPress: () => void }) {
+  return (
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityState={{ checked: on }}
+      accessibilityLabel={label}
+      onPress={onPress}
+      style={({ pressed }) => [styles.toggle, on && styles.toggleOn, pressed && styles.togglePressed]}
+    >
+      <Text style={[styles.toggleText, on && styles.toggleTextOn]}>
+        {label} {on ? 'on' : 'off'}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -70,5 +105,17 @@ const styles = StyleSheet.create({
   stat: { flex: 1, alignItems: 'center' },
   statValue: { color: colors.text, fontSize: 22, fontWeight: '800' },
   statLabel: { color: colors.muted, fontSize: 12, marginTop: 2 },
+  toggles: { flexDirection: 'row', justifyContent: 'center', gap: 12 },
+  toggle: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    borderWidth: 2,
+    borderColor: colors.surfaceRaised,
+  },
+  toggleOn: { backgroundColor: colors.surfaceRaised, borderColor: colors.op },
+  togglePressed: { opacity: 0.7 },
+  toggleText: { color: colors.muted, fontSize: 14, fontWeight: '700' },
+  toggleTextOn: { color: colors.text },
   howTo: { color: colors.muted, fontSize: 13, textAlign: 'center', lineHeight: 19, marginBottom: 8 },
 });
