@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { NumberTile } from '../components/NumberTile';
 import {
@@ -17,7 +17,7 @@ import {
   Tile,
 } from '../game/engine';
 import { feedback } from '../feedback';
-import { colors } from '../theme';
+import { makeStyles } from '../theme';
 
 interface Props {
   difficulty: Difficulty;
@@ -44,6 +44,7 @@ function formatDateKey(dateKey: string): string {
 }
 
 export function GameScreen({ difficulty, daily, onSolved, onSkip, onExit }: Props) {
+  const styles = useStyles();
   const [puzzle, setPuzzle] = useState<Puzzle>(() =>
     daily ? dailyPuzzle(daily.dateKey) : generatePuzzle(difficulty),
   );
@@ -247,7 +248,7 @@ export function GameScreen({ difficulty, daily, onSolved, onSkip, onExit }: Prop
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: { flex: 1, paddingHorizontal: 20, paddingBottom: 12 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12 },
   back: { color: colors.muted, fontSize: 17, fontWeight: '600' },
@@ -255,7 +256,7 @@ const styles = StyleSheet.create({
   timer: { color: colors.text, fontSize: 17, fontWeight: '700', minWidth: 48, textAlign: 'right' },
   targetBox: { alignItems: 'center', backgroundColor: colors.surface, borderRadius: 24, paddingVertical: 18 },
   targetLabel: { color: colors.muted, fontSize: 12, fontWeight: '800', letterSpacing: 3 },
-  target: { color: colors.accent, fontSize: 64, fontWeight: '900' },
+  target: { color: colors.accentInk, fontSize: 64, fontWeight: '900' },
   closest: { color: colors.muted, fontSize: 13, minHeight: 18 },
   grid: {
     flexDirection: 'row',
@@ -276,16 +277,16 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: 'transparent',
   },
-  opActive: { borderColor: colors.accent, backgroundColor: '#7C89FF' },
+  opActive: { borderColor: colors.accent, backgroundColor: colors.opActive },
   opDisabled: { opacity: 0.4 },
   opPressed: { transform: [{ scale: 0.92 }] },
-  opText: { color: '#fff', fontSize: 30, fontWeight: '800' },
+  opText: { color: colors.opText, fontSize: 30, fontWeight: '800' },
   message: { color: colors.danger, textAlign: 'center', marginTop: 12, fontWeight: '600' },
   messageHidden: { opacity: 0 },
   log: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', paddingVertical: 8, gap: 2 },
   logLine: { color: colors.muted, fontSize: 15, fontVariant: ['tabular-nums'] },
-  hintLine: { color: colors.success },
+  hintLine: { color: colors.successInk },
   hintNote: { color: colors.muted, fontSize: 11, marginTop: 4 },
   actions: { flexDirection: 'row', gap: 10 },
   action: { flex: 1, paddingHorizontal: 0 },
-});
+}));

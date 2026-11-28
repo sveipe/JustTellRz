@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { BackHandler, StyleSheet, useColorScheme } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import {
   DEFAULT_FEEDBACK,
@@ -11,8 +12,16 @@ import {
 import { DAILY_DIFFICULTY, Difficulty, localDateKey, previousDateKey } from './src/game/engine';
 import { EMPTY_STATS, loadStats, saveStats, Stats } from './src/game/stats';
 import { GameScreen } from './src/screens/GameScreen';
+import { HelpScreen } from './src/screens/HelpScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
-import { colors } from './src/theme';
+import { SettingsScreen } from './src/screens/SettingsScreen';
+import {
+  loadThemePreference,
+  paletteFor,
+  saveThemePreference,
+  ThemePreference,
+  ThemeProvider,
+} from './src/theme';
 
 interface Game {
   difficulty: Difficulty;
@@ -22,12 +31,29 @@ interface Game {
 export default function App() {
   const [stats, setStats] = useState<Stats>(EMPTY_STATS);
   const [game, setGame] = useState<Game | null>(null);
+  /** Which menu screen is showing when no game is open. */
+  const [menuScreen, setMenuScreen] = useState<'home' | 'settings' | 'help'>('home');
   const [today, setToday] = useState(() => localDateKey(new Date()));
   const [feedbackSettings, setFeedbackSettings] = useState<FeedbackSettings>(DEFAULT_FEEDBACK);
+  const [themePreference, setThemePreference] = useState<ThemePreference>('system');
+  const deviceScheme = useColorScheme();
+  const palette = paletteFor(themePreference, deviceScheme);
 
   useEffect(() => {
     loadStats().then(setStats);
     loadFeedbackSettings().then(setFeedbackSettings);
+    loadThemePreference().then(setThemePreference);
+  }, []);
+
+  // Match the native root view to the theme so no other color shows behind the app
+  // (for example while the keyboard animates or the screen rotates).
+  useEffect(() => {
+    SystemUI.setBackgroundColorAsync(palette.bg).catch(() => {});
+  }, [palette.bg]);
+
+  const changeTheme = useCallback((next: ThemePreference) => {
+    setThemePreference(next);
+    saveThemePreference(next);
   }, []);
 
   // Keep "today" current so a new daily puzzle appears after midnight.
@@ -35,6 +61,16 @@ export default function App() {
     const t = setInterval(() => setToday(localDateKey(new Date())), 30_000);
     return () => clearInterval(t);
   }, []);
+
+  // Android's back button returns from Settings or Help to the menu instead of closing the app.
+  useEffect(() => {
+    if (menuScreen === 'home') return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      setMenuScreen('home');
+      return true;
+    });
+    return () => sub.remove();
+  }, [menuScreen]);
 
   const changeFeedback = useCallback((next: FeedbackSettings) => {
     setFeedbackSettings(next);
@@ -113,33 +149,45 @@ export default function App() {
   }, []);
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.root}>
-        <StatusBar style="light" />
-        {game ? (
-          <GameScreen
-            key={game.daily ? `daily-${game.daily.dateKey}` : game.difficulty}
-            difficulty={game.difficulty}
-            daily={game.daily}
-            onSolved={onSolved}
-            onSkip={onSkip}
-            onExit={exitGame}
-          />
-        ) : (
-          <HomeScreen
-            stats={stats}
-            today={today}
-            feedbackSettings={feedbackSettings}
-            onChangeFeedback={changeFeedback}
-            onStart={startPractice}
-            onStartDaily={startDaily}
-          />
-        )}
-      </SafeAreaView>
-    </SafeAreaProvider>
+    <ThemeProvider value={palette}>
+      <SafeAreaProvider>
+        <SafeAreaView style={[styles.root, { backgroundColor: palette.bg }]}>
+          <StatusBar style={palette.scheme === 'dark' ? 'light' : 'dark'} />
+          {game ? (
+            <GameScreen
+              key={game.daily ? `daily-${game.daily.dateKey}` : game.difficulty}
+              difficulty={game.difficulty}
+              daily={game.daily}
+              onSolved={onSolved}
+              onSkip={onSkip}
+              onExit={exitGame}
+            />
+          ) : menuScreen === 'settings' ? (
+            <SettingsScreen
+              feedbackSettings={feedbackSettings}
+              onChangeFeedback={changeFeedback}
+              themePreference={themePreference}
+              onChangeTheme={changeTheme}
+              onBack={() => setMenuScreen('home')}
+            />
+          ) : menuScreen === 'help' ? (
+            <HelpScreen onBack={() => setMenuScreen('home')} />
+          ) : (
+            <HomeScreen
+              stats={stats}
+              today={today}
+              onStart={startPractice}
+              onStartDaily={startDaily}
+              onOpenSettings={() => setMenuScreen('settings')}
+              onOpenHelp={() => setMenuScreen('help')}
+            />
+          )}
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.bg },
+  root: { flex: 1 },
 });
