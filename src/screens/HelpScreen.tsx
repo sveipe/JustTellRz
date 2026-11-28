@@ -1,7 +1,9 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ReactNode } from 'react';
 import { ScrollView, Text, View } from 'react-native';
+import type { IconName } from '../components/Button';
 import { ScreenHeader } from '../components/ScreenHeader';
-import { makeStyles } from '../theme';
+import { makeStyles, useColors } from '../theme';
 
 export function HelpScreen({ onBack }: { onBack: () => void }) {
   const styles = useStyles();
@@ -44,10 +46,14 @@ export function HelpScreen({ onBack }: { onBack: () => void }) {
         </Section>
 
         <Section title="BUTTONS">
-          <Term name="Undo">Takes back your last move.</Term>
-          <Term name="Reset">Puts all the tiles back to the start.</Term>
-          <Term name="Hint">Shows one possible solution, but cuts that puzzle&apos;s score to a quarter.</Term>
-          <Term name="Skip">Practice only. Gives you a new puzzle and resets your streak.</Term>
+          <ButtonTerm icon="arrow-undo" name="Undo">Takes back your last move.</ButtonTerm>
+          <ButtonTerm icon="refresh" name="Reset">Puts all the tiles back to the start.</ButtonTerm>
+          <ButtonTerm icon="bulb-outline" name="Hint">
+            Shows one possible solution, but cuts that puzzle&apos;s score to a quarter. Tap again to hide it.
+          </ButtonTerm>
+          <ButtonTerm icon="play-skip-forward" name="Skip">
+            Practice only. Gives you a new puzzle and resets your streak.
+          </ButtonTerm>
         </Section>
 
         <Section title="DIFFICULTY">
@@ -106,6 +112,23 @@ function Bullet({ children }: { children: ReactNode }) {
   );
 }
 
+/** A game button explained: its icon as it appears on screen, then its name and what it does. */
+function ButtonTerm({ icon, name, children }: { icon: IconName; name: string; children: ReactNode }) {
+  const styles = useStyles();
+  const colors = useColors();
+  return (
+    <View style={styles.buttonRow}>
+      <View style={styles.buttonIcon}>
+        <Ionicons name={icon} size={20} color={colors.text} />
+      </View>
+      <Text style={[styles.body, styles.listText]}>
+        <Text style={styles.term}>{name}: </Text>
+        {children}
+      </Text>
+    </View>
+  );
+}
+
 function Term({ name, children }: { name: string; children: ReactNode }) {
   const styles = useStyles();
   return (
@@ -139,6 +162,15 @@ const useStyles = makeStyles((colors) => ({
     fontWeight: '800',
   },
   bullet: { color: colors.op, fontSize: 15, lineHeight: 22, fontWeight: '900' },
+  buttonRow: { flexDirection: 'row', gap: 12, alignItems: 'center' },
+  buttonIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: colors.surfaceRaised,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   term: { fontWeight: '800', color: colors.accentInk },
   example: { backgroundColor: colors.bg, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, gap: 4 },
   exampleLine: { color: colors.text, fontSize: 18, fontWeight: '700', fontVariant: ['tabular-nums'] },

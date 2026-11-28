@@ -1,20 +1,32 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
+import type { ComponentProps } from 'react';
 import { Pressable, Text, ViewStyle } from 'react-native';
-import { makeStyles } from '../theme';
+import { makeStyles, useColors } from '../theme';
+
+export type IconName = ComponentProps<typeof Ionicons>['name'];
 
 interface Props {
+  /** Shown as text, or, when `icon` is set, read out by screen readers instead. */
   label: string;
+  icon?: IconName;
+  /** Icon color override (defaults to the button's text color). */
+  iconColor?: string;
   onPress: () => void;
   variant?: 'primary' | 'secondary';
   disabled?: boolean;
   style?: ViewStyle;
+  selected?: boolean;
 }
 
-export function Button({ label, onPress, variant = 'secondary', disabled, style }: Props) {
+export function Button({ label, icon, iconColor, onPress, variant = 'secondary', disabled, style, selected }: Props) {
   const styles = useStyles();
+  const colors = useColors();
   const primary = variant === 'primary';
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled: !!disabled, selected }}
       onPress={onPress}
       disabled={disabled}
       style={({ pressed }) => [
@@ -25,7 +37,11 @@ export function Button({ label, onPress, variant = 'secondary', disabled, style 
         style,
       ]}
     >
-      <Text style={[styles.label, primary && styles.primaryLabel]}>{label}</Text>
+      {icon ? (
+        <Ionicons name={icon} size={24} color={iconColor ?? (primary ? colors.accentText : colors.text)} />
+      ) : (
+        <Text style={[styles.label, primary && styles.primaryLabel]}>{label}</Text>
+      )}
     </Pressable>
   );
 }
