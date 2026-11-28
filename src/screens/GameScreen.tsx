@@ -18,7 +18,7 @@ import {
   Tile,
 } from '../game/engine';
 import { feedback } from '../feedback';
-import { makeStyles } from '../theme';
+import { makeStyles, useColors } from '../theme';
 
 interface Props {
   difficulty: Difficulty;
@@ -46,6 +46,7 @@ function formatDateKey(dateKey: string): string {
 
 export function GameScreen({ difficulty, daily, onSolved, onSkip, onExit }: Props) {
   const styles = useStyles();
+  const colors = useColors();
   const [puzzle, setPuzzle] = useState<Puzzle>(() =>
     daily ? dailyPuzzle(daily.dateKey) : generatePuzzle(difficulty),
   );
@@ -238,13 +239,20 @@ export function GameScreen({ difficulty, daily, onSolved, onSkip, onExit }: Prop
         )
       ) : (
         <View style={styles.actions}>
-          <Button label="Undo" onPress={undo} disabled={history.length === 0} style={styles.action} />
-          <Button label="Reset" onPress={reset} disabled={history.length === 0} style={styles.action} />
-          <Button label={showHint ? 'Hide' : 'Hint'} onPress={() => {
+          <Button label="Undo" icon="arrow-undo" onPress={undo} disabled={history.length === 0} style={styles.action} />
+          <Button label="Reset" icon="refresh" onPress={reset} disabled={history.length === 0} style={styles.action} />
+          <Button
+            label={showHint ? 'Hide hint' : 'Hint'}
+            icon={showHint ? 'bulb' : 'bulb-outline'}
+            iconColor={showHint ? colors.accentInk : undefined}
+            selected={showHint}
+            onPress={() => {
               setHintUsed(true);
               setShowHint((v) => !v);
-            }} style={styles.action} />
-          {!daily && <Button label="Skip" onPress={skip} style={styles.action} />}
+            }}
+            style={styles.action}
+          />
+          {!daily && <Button label="Skip" icon="play-skip-forward" onPress={skip} style={styles.action} />}
         </View>
       )}
     </View>

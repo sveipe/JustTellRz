@@ -35,10 +35,10 @@ On startup it also calls `initializeAds()` (see [Consent and SDK initialization]
 | Screen | File | What it shows |
 | --- | --- | --- |
 | Home | `src/screens/HomeScreen.tsx` | Title, help (?) and settings (gear) icons, daily puzzle card, practice levels with best times, stats row |
-| Game | `src/screens/GameScreen.tsx` | Target, tiles, operators, move log or hint, Undo/Reset/Hint/Skip. "Next puzzle" goes through the interstitial hook |
+| Game | `src/screens/GameScreen.tsx` | Target, tiles, operators, move log or hint, and icon buttons for Undo (`arrow-undo`), Reset (`refresh`), Hint (`bulb-outline`, filled while showing) and Skip (`play-skip-forward`). "Next puzzle" goes through the interstitial hook |
 | Settings | `src/screens/SettingsScreen.tsx` | Appearance, Sound/Haptics switches, Contact us and Privacy policy links, Ad privacy choices (when required), app version |
 | Help | `src/screens/HelpScreen.tsx` | Full how-to-play guide. Its numbers mirror `src/game/engine.ts` |
 
-Shared components: `Button`, `NumberTile` (animated tile) and `ScreenHeader` (the "‹ Menu" header used by Settings and Help).
+Shared components: `Button` (text, or an Ionicons `icon` with the label kept for screen readers), `NumberTile` (animated tile) and `ScreenHeader` (the "‹ Menu" header used by Settings and Help).
 
 When engine rules or numbers change, update `HelpScreen.tsx` and [Rules and scoring](/game/rules-and-scoring.md) to match.
