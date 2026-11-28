@@ -18,6 +18,8 @@ generated:
 | `numberwright.theme.v1` | `src/theme.ts` | `system`, `light` or `dark` |
 | `numberwright.adFrequency.v1` | `src/ads/adFrequency.ts` | `{ levelsSinceLastAd, lastAdAt }` for the [frequency cap](/ads/frequency-capping.md) |
 
+Stats changes go through pure functions in `src/game/stats.ts` (`recordPracticeSolve`, `recordDailySolve`, `recordSkip`), which `App.tsx` applies and then saves. They're unit tested; see [Testing and CI](/build/testing.md).
+
 Each loader falls back to defaults when the key is missing or unreadable. Changing a stored shape incompatibly means bumping the `.v1` suffix and handling the old key.
 
 # Privacy

@@ -18,11 +18,12 @@ npm run web                  # web build (ads disabled)
 npm run lint                 # npx expo lint
 npm run typecheck            # npx tsc --noEmit
 npm run docs:check           # validate this docs bundle (scripts/check-docs.js)
+npm test                     # unit tests (see Testing and CI)
 npx expo-doctor              # dependency and config checks
 npx expo install <package>   # always use this to add packages: SDK-matched versions
 ```
 
-Run lint, typecheck and `npm run docs:check` before declaring a task done. `AGENTS.md` has the docs conventions and which pages to update when code changes.
+Run lint, typecheck, `npm run docs:check` and `npm test` before declaring a task done. CI runs the same checks on every PR ([Testing and CI](/build/testing.md)). `AGENTS.md` has the docs conventions and which pages to update when code changes.
 
 # Expo Go or a development build
 

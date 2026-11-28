@@ -1,8 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Button } from '../components/Button';
-import { Difficulty, previousDateKey } from '../game/engine';
-import type { Stats } from '../game/stats';
+import type { Difficulty } from '../game/engine';
+import { currentDailyStreak, type Stats } from '../game/stats';
 import { makeStyles, useColors } from '../theme';
 
 interface Props {
@@ -81,9 +81,7 @@ function DailyCard({ stats, today, onPlay }: { stats: Stats; today: string; onPl
   const styles = useStyles();
   const d = stats.daily;
   const solvedToday = d.lastSolvedDate === today;
-  // A streak stays alive until a whole day passes without solving.
-  const streakAlive = solvedToday || d.lastSolvedDate === previousDateKey(today);
-  const streak = streakAlive ? d.streak : 0;
+  const streak = currentDailyStreak(d, today);
   const inProgress = !solvedToday && d.startedDate === today;
 
   return (

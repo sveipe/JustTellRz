@@ -43,6 +43,7 @@ npm install
 npm start          # then scan the QR code with Expo Go (ads are skipped there), or press i / a / w
 npm run typecheck
 npm run lint
+npm test           # unit tests
 ```
 
 ## Project structure

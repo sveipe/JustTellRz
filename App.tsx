@@ -10,8 +10,16 @@ import {
   loadFeedbackSettings,
   saveFeedbackSettings,
 } from './src/feedback';
-import { DAILY_DIFFICULTY, Difficulty, localDateKey, previousDateKey } from './src/game/engine';
-import { EMPTY_STATS, loadStats, saveStats, Stats } from './src/game/stats';
+import { DAILY_DIFFICULTY, Difficulty, localDateKey } from './src/game/engine';
+import {
+  EMPTY_STATS,
+  loadStats,
+  recordDailySolve,
+  recordPracticeSolve,
+  recordSkip,
+  saveStats,
+  Stats,
+} from './src/game/stats';
 import { GameScreen } from './src/screens/GameScreen';
 import { HelpScreen } from './src/screens/HelpScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
@@ -107,44 +115,17 @@ export default function App() {
     ({ seconds, score, usedHint }: { seconds: number; score: number; usedHint: boolean }) => {
       if (!game) return;
       const { difficulty, daily } = game;
+      const result = { seconds, score, usedHint };
       if (daily) {
-        updateStats((s) => {
-          if (s.daily.lastSolvedDate === daily.dateKey) return s;
-          const streak = s.daily.lastSolvedDate === previousDateKey(daily.dateKey) ? s.daily.streak + 1 : 1;
-          return {
-            ...s,
-            solved: s.solved + 1,
-            totalScore: s.totalScore + score,
-            daily: {
-              ...s.daily,
-              lastSolvedDate: daily.dateKey,
-              lastSeconds: seconds,
-              lastScore: score,
-              lastUsedHint: usedHint,
-              streak,
-              bestStreak: Math.max(s.daily.bestStreak, streak),
-            },
-          };
-        });
-        return;
+        updateStats((s) => recordDailySolve(s, daily.dateKey, result));
+      } else {
+        updateStats((s) => recordPracticeSolve(s, difficulty, result));
       }
-      updateStats((s) => {
-        const streak = s.streak + 1;
-        const prevBest = s.bestTime[difficulty];
-        return {
-          ...s,
-          solved: s.solved + 1,
-          totalScore: s.totalScore + score,
-          streak,
-          bestStreak: Math.max(s.bestStreak, streak),
-          bestTime: { ...s.bestTime, [difficulty]: prevBest == null ? seconds : Math.min(prevBest, seconds) },
-        };
-      });
     },
     [game, updateStats],
   );
 
-  const onSkip = useCallback(() => updateStats((s) => ({ ...s, streak: 0 })), [updateStats]);
+  const onSkip = useCallback(() => updateStats(recordSkip), [updateStats]);
 
   const exitGame = useCallback(() => {
     setToday(localDateKey(new Date()));

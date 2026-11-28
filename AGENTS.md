@@ -20,9 +20,10 @@ npx tsc --noEmit            # typecheck
 npx expo-doctor             # diagnose dependency and config issues
 npx expo install --fix      # fix incompatible package versions
 npm run docs:check          # validate the docs/ bundle
+npm test                    # Jest unit tests (jest-expo)
 ```
 
-Run lint, typecheck and `npm run docs:check` before declaring any task done.
+Run lint, typecheck, `npm run docs:check` and `npm test` before declaring any task done; CI (`.github/workflows/ci.yml`) runs all four on every PR. Add or update tests in `__tests__/` (`<module>-test.ts`) when you change game, stats or ad-cap logic. Keep stats updates as pure functions in `src/game/stats.ts` so they stay testable.
 
 ## Documentation (OKF)
 
@@ -65,6 +66,7 @@ generated:
 | `app.config.ts`, `plugins/*`, permissions | `build/app-config.md` (permissions also: `store/google-play-declarations.md`) |
 | `eas.json` | `build/eas-build.md` |
 | `scripts/make-icons.py`, `assets/` | `build/generated-assets.md` |
+| Tests, `jest.setup.ts`, `.github/workflows/` | `build/testing.md` |
 | New SDK that collects data | the three `store/` privacy pages, and tell the user the live privacy policy needs updating |
 
 ## Project layout
