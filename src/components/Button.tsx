@@ -1,5 +1,5 @@
-import { Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
-import { colors } from '../theme';
+import { Pressable, Text, ViewStyle } from 'react-native';
+import { makeStyles } from '../theme';
 
 interface Props {
   label: string;
@@ -10,6 +10,7 @@ interface Props {
 }
 
 export function Button({ label, onPress, variant = 'secondary', disabled, style }: Props) {
+  const styles = useStyles();
   const primary = variant === 'primary';
   return (
     <Pressable
@@ -29,7 +30,7 @@ export function Button({ label, onPress, variant = 'secondary', disabled, style 
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   base: { paddingVertical: 14, paddingHorizontal: 18, borderRadius: 14, alignItems: 'center' },
   primary: { backgroundColor: colors.accent },
   secondary: { backgroundColor: colors.surfaceRaised },
@@ -37,4 +38,4 @@ const styles = StyleSheet.create({
   disabled: { opacity: 0.35 },
   label: { color: colors.text, fontSize: 16, fontWeight: '700' },
   primaryLabel: { color: colors.accentText },
-});
+}));

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Animated, Pressable, StyleSheet, Text } from 'react-native';
-import { colors } from '../theme';
+import { Animated, Pressable, Text } from 'react-native';
+import { makeStyles } from '../theme';
 
 interface Props {
   value: number;
@@ -10,6 +10,7 @@ interface Props {
 }
 
 export function NumberTile({ value, selected, isTarget, onPress }: Props) {
+  const styles = useStyles();
   const [scale] = useState(() => new Animated.Value(0.6));
 
   // Pop in whenever a tile is created (new tiles get new keys).
@@ -42,7 +43,7 @@ export function NumberTile({ value, selected, isTarget, onPress }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   tile: {
     width: 92,
     height: 92,
@@ -54,10 +55,10 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     paddingHorizontal: 6,
   },
-  selected: { backgroundColor: colors.accent, borderColor: '#FFE0A8' },
-  target: { backgroundColor: colors.success, borderColor: '#B8FFE0' },
+  selected: { backgroundColor: colors.accent, borderColor: colors.selectedBorder },
+  target: { backgroundColor: colors.success, borderColor: colors.targetBorder },
   pressed: { transform: [{ scale: 0.94 }] },
   text: { color: colors.text, fontSize: 32, fontWeight: '800' },
   selectedText: { color: colors.accentText },
   small: { fontSize: 24 },
-});
+}));
