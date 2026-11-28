@@ -17,11 +17,12 @@ npm run android              # expo run:android: local native debug build on a d
 npm run web                  # web build (ads disabled)
 npm run lint                 # npx expo lint
 npm run typecheck            # npx tsc --noEmit
+npm run docs:check           # validate this docs bundle (scripts/check-docs.js)
 npx expo-doctor              # dependency and config checks
 npx expo install <package>   # always use this to add packages: SDK-matched versions
 ```
 
-Run lint and typecheck before declaring a task done (`AGENTS.md`).
+Run lint, typecheck and `npm run docs:check` before declaring a task done. `AGENTS.md` has the docs conventions and which pages to update when code changes.
 
 # Expo Go or a development build
 
