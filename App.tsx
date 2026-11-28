@@ -3,6 +3,7 @@ import * as SystemUI from 'expo-system-ui';
 import { useCallback, useEffect, useState } from 'react';
 import { BackHandler, StyleSheet, useColorScheme } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { initializeAds } from './src/ads/adInitialization';
 import {
   DEFAULT_FEEDBACK,
   FeedbackSettings,
@@ -43,6 +44,8 @@ export default function App() {
     loadStats().then(setStats);
     loadFeedbackSettings().then(setFeedbackSettings);
     loadThemePreference().then(setThemePreference);
+    // Ad consent + SDK setup. Never throws or blocks the UI; the game screen awaits it before loading ads.
+    initializeAds();
   }, []);
 
   // Match the native root view to the theme so no other color shows behind the app

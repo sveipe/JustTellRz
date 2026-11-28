@@ -1,5 +1,7 @@
 import Constants from 'expo-constants';
+import { useEffect, useState } from 'react';
 import { Linking, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { initializeAds, isPrivacyOptionsRequired, showAdPrivacyOptions } from '../ads/adInitialization';
 import { ScreenHeader } from '../components/ScreenHeader';
 import type { FeedbackSettings } from '../feedback';
 import { makeStyles, ThemePreference, useColors } from '../theme';
@@ -25,6 +27,18 @@ interface Props {
 
 export function SettingsScreen({ feedbackSettings, onChangeFeedback, themePreference, onChangeTheme, onBack }: Props) {
   const styles = useStyles();
+  // Players in regions that require it (EEA, UK, ...) must be able to revisit their ad consent.
+  const [showAdPrivacy, setShowAdPrivacy] = useState(false);
+  useEffect(() => {
+    let active = true;
+    initializeAds().then(() => {
+      if (active) setShowAdPrivacy(isPrivacyOptionsRequired());
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <View style={styles.container}>
       <ScreenHeader title="SETTINGS" onBack={onBack} />
@@ -74,6 +88,12 @@ export function SettingsScreen({ feedbackSettings, onChangeFeedback, themePrefer
           <LinkRow label="Contact us" url={CONTACT_URL} />
           <View style={styles.divider} />
           <LinkRow label="Privacy policy" url={PRIVACY_URL} />
+          {showAdPrivacy && (
+            <>
+              <View style={styles.divider} />
+              <ActionRow label="Ad privacy choices" onPress={showAdPrivacyOptions} />
+            </>
+          )}
         </View>
 
         {APP_VERSION && <Text style={styles.version}>Numberwright v{APP_VERSION}</Text>}
@@ -97,6 +117,20 @@ function SwitchRow({ label, value, onChange }: { label: string; value: boolean; 
         ios_backgroundColor={colors.surfaceRaised}
       />
     </View>
+  );
+}
+
+function ActionRow({ label, onPress }: { label: string; onPress: () => void }) {
+  const styles = useStyles();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+    >
+      <Text style={styles.rowLabel}>{label}</Text>
+      <Text style={styles.chevron}>›</Text>
+    </Pressable>
   );
 }
 

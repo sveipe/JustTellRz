@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { useInterstitialAd } from '../ads/useInterstitialAd';
 import { Button } from '../components/Button';
 import { NumberTile } from '../components/NumberTile';
 import {
@@ -59,6 +60,7 @@ export function GameScreen({ difficulty, daily, onSolved, onSkip, onExit }: Prop
   const [startedAt, setStartedAt] = useState(() => daily?.startedAt ?? Date.now());
   const [now, setNow] = useState(() => Date.now());
   const [won, setWon] = useState<{ seconds: number; score: number } | null>(null);
+  const { showAdOrProceed } = useInterstitialAd();
 
   const seconds = Math.floor(((won ? startedAt + won.seconds * 1000 : now) - startedAt) / 1000);
 
@@ -231,7 +233,8 @@ export function GameScreen({ difficulty, daily, onSolved, onSkip, onExit }: Prop
         daily ? (
           <Button label="Back to menu" variant="primary" onPress={onExit} />
         ) : (
-          <Button label="Next puzzle" variant="primary" onPress={newPuzzle} />
+          // Every few levels this shows an interstitial first; newPuzzle runs when it closes.
+          <Button label="Next puzzle" variant="primary" onPress={() => showAdOrProceed(newPuzzle)} />
         )
       ) : (
         <View style={styles.actions}>
