@@ -23,6 +23,10 @@ npx expo install --fix      # fix incompatible package versions
 
 Run lint and typecheck before declaring any task done.
 
+## Documentation
+
+Project documentation is an OKF v0.3 bundle in `docs/` (start at `docs/index.md`). Every non-`index.md`/`log.md` page needs YAML frontmatter with a `type`; add a dated entry to `docs/log.md` when you change docs. Update the relevant page when behavior it describes changes.
+
 ## Project layout
 
 - `App.tsx` — root; switches between the home and game screens and owns persisted stats.
