@@ -1,0 +1,42 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "ADMOB_ANDROID_APP_ID": "ca-app-pub-3940256099942544~3347511713",
+        "ADMOB_IOS_APP_ID": "ca-app-pub-3940256099942544~1458002511",
+        "EXPO_PUBLIC_ADMOB_ANDROID_INTERSTITIAL_ID": "ca-app-pub-3940256099942544/1033173712",
+        "EXPO_PUBLIC_ADMOB_IOS_INTERSTITIAL_ID": "ca-app-pub-3940256099942544/4411468910"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "ADMOB_ANDROID_APP_ID": "ca-app-pub-3940256099942544~3347511713",
+        "ADMOB_IOS_APP_ID": "ca-app-pub-3940256099942544~1458002511",
+        "EXPO_PUBLIC_ADMOB_ANDROID_INTERSTITIAL_ID": "ca-app-pub-3940256099942544/1033173712",
+        "EXPO_PUBLIC_ADMOB_IOS_INTERSTITIAL_ID": "ca-app-pub-3940256099942544/4411468910"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "ADMOB_ANDROID_APP_ID": "REPLACE_WITH_ANDROID_APP_ID_FROM_ADMOB (ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX)",
+        "ADMOB_IOS_APP_ID": "REPLACE_WITH_IOS_APP_ID_FROM_ADMOB (ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX)",
+        "EXPO_PUBLIC_ADMOB_ANDROID_INTERSTITIAL_ID": "REPLACE_WITH_ANDROID_INTERSTITIAL_AD_UNIT_ID (ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX)",
+        "EXPO_PUBLIC_ADMOB_IOS_INTERSTITIAL_ID": "REPLACE_WITH_IOS_INTERSTITIAL_AD_UNIT_ID (ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX)"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
